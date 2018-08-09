@@ -1281,4 +1281,59 @@ function substr_cut($str_cut,$length,$symbol="...",$encoding="utf-8")
 	}
 	return $str_cut;
 }
+function api_return($status=0, $info="", $data=null){
+	if (is_array($status)) {
+		return array(
+			'status' => $status['status'],
+			'info' => $status['info'],
+			'data' => is_int($status['data']) ? intval($status['data']) : (is_float($status['data']) ? floatval($status['data']) : $status['data']),
+		);
+	}else{
+		return array(
+			'status' => $status,
+			'info' => $info,
+			'data' => is_int($data) ? intval($data) : (is_float($data) ? floatval($data) : $data),
+		);
+	}
+}
 
+function password_encrpty($password){
+	if (!empty($password)){
+		$key = "QE~I+uU]W9a)CV@P";
+		$m1 = md5($password.$key);
+		$m2 = md5($m1);
+	}
+	
+	return $m2;	
+}
+function gen_password($password='',$key=''){
+	$hash_password = md5($password);
+	if(empty($key))
+		$key = substr($hash_password, 0, 6);
+	return md5($hash_password . $key);
+	// return md5(md5(trim($password)).$key);
+}
+
+function export_csv($name='', $data){
+	
+	header('Content-Type: application/vnd.ms-excel;');  
+	header('Content-Disposition: attachment;filename="' . $name . '.csv"');
+	header('Cache-Control: max-age=0');
+    
+	ini_set('max_execution_time',0);
+    set_time_limit(0);
+
+	$fp = fopen('php://output', 'a');
+
+	foreach ($data as $key => $sheet) {
+		foreach ($sheet as $k => $v) {
+			$row = array();
+			foreach ($v as $n => $c) {
+				$row[$n] = iconv('utf-8', 'gbk', $c);
+			}
+			fputcsv($fp, $row);  
+		}  
+	}
+
+	fclose($fp);
+}
